@@ -288,14 +288,14 @@ test('mcp e2e: can initialize, list tools, and call keychain_status over /sse', 
     ) {
       assert.ok(
         res.content.some((item) => {
-          if (!item || item.type !== 'text') return false;
+          if (item?.type !== 'text') return false;
           return item.text.toLowerCase().includes('vault access ready');
         }),
       );
     } else {
       assert.ok(
         res.content.some((item) => {
-          if (!item || item.type !== 'text') return false;
+          if (item?.type !== 'text') return false;
           const text = item.text.toLowerCase();
           return (
             text.includes('vault access not ready yet') &&
