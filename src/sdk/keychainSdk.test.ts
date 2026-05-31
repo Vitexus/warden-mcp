@@ -1707,7 +1707,7 @@ describe('KeychainSdk CRUD', () => {
                 type: 1,
                 name: 'X Login',
                 login: {
-                  username: 'icoretech',
+                  username: 'icoretech_inc',
                   uris: [{ uri: 'https://x.com', match: 0 }],
                 },
               },
@@ -1729,7 +1729,7 @@ describe('KeychainSdk CRUD', () => {
 
     const sdk = new KeychainSdk(mock);
     const results = await sdk.searchItems({
-      text: 'icoretech',
+      text: 'icoretech_inc',
       type: 'login',
       url: 'https://x.com',
     });
