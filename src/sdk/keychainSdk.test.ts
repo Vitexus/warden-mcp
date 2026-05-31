@@ -1695,6 +1695,51 @@ describe('KeychainSdk CRUD', () => {
     assert.ok(calls.some((c) => c.args.includes('--url')));
   });
 
+  test('searchItems with url and text filters URL matches locally', async () => {
+    const { mock, calls } = createMockBw({
+      runResponses: new Map([
+        [
+          'list items --url https://x.com',
+          {
+            stdout: JSON.stringify([
+              {
+                id: 'match',
+                type: 1,
+                name: 'X Login',
+                login: {
+                  username: 'icoretech',
+                  uris: [{ uri: 'https://x.com', match: 0 }],
+                },
+              },
+              {
+                id: 'miss',
+                type: 1,
+                name: 'X Personal',
+                login: {
+                  username: 'personal',
+                  uris: [{ uri: 'https://x.com', match: 0 }],
+                },
+              },
+            ]),
+            stderr: '',
+          },
+        ],
+      ]),
+    });
+
+    const sdk = new KeychainSdk(mock);
+    const results = await sdk.searchItems({
+      text: 'icoretech',
+      type: 'login',
+      url: 'https://x.com',
+    });
+
+    assert.equal(results.length, 1);
+    assert.equal((results[0] as { id: string }).id, 'match');
+    assert.ok(calls.some((c) => c.args.includes('--url')));
+    assert.ok(!calls.some((c) => c.args.includes('--search')));
+  });
+
   test('searchItems with trash passes --trash flag', async () => {
     const { mock, calls } = createMockBw({
       runResponses: new Map([['list items', { stdout: '[]', stderr: '' }]]),

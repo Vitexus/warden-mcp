@@ -139,6 +139,31 @@ function isSshKeyItem(item: AnyRecord): boolean {
   return names.has('public_key') && names.has('private_key');
 }
 
+function stringValueMatches(value: unknown, needle: string): boolean {
+  return typeof value === 'string' && value.toLowerCase().includes(needle);
+}
+
+function itemMatchesSearchText(item: AnyRecord, term: string): boolean {
+  const needle = term.trim().toLowerCase();
+  if (needle.length === 0) return true;
+
+  if (stringValueMatches(item.name, needle)) return true;
+
+  const login = item.login;
+  if (!login || typeof login !== 'object') return false;
+
+  const loginRec = login as AnyRecord;
+  if (stringValueMatches(loginRec.username, needle)) return true;
+
+  const uris = loginRec.uris;
+  if (!Array.isArray(uris)) return false;
+
+  return uris.some((rawUri) => {
+    if (!rawUri || typeof rawUri !== 'object') return false;
+    return stringValueMatches((rawUri as AnyRecord).uri, needle);
+  });
+}
+
 export interface SearchItemsInput {
   text?: string;
   type?: ItemKind;
@@ -1026,7 +1051,11 @@ export class KeychainSdk {
       // NOTE: bw's `--search` does not treat "a | b" as "a OR b". If callers pass
       // a pipe-delimited string (common when combining name + username), we split
       // and union the results.
-      const terms = tokens.length ? tokens : [undefined];
+      const terms = input.url
+        ? [undefined]
+        : tokens.length
+          ? tokens
+          : [undefined];
       const byId = new Map<string, unknown>();
 
       for (const term of terms) {
@@ -1046,7 +1075,16 @@ export class KeychainSdk {
       return [...byId.values()];
     });
 
-    const orgFiltered = items.filter((raw) => {
+    const textFiltered = input.url
+      ? items.filter((raw) => {
+          if (tokens.length === 0) return true;
+          if (!raw || typeof raw !== 'object') return false;
+          const item = raw as AnyRecord;
+          return tokens.some((term) => itemMatchesSearchText(item, term));
+        })
+      : items;
+
+    const orgFiltered = textFiltered.filter((raw) => {
       if (!raw || typeof raw !== 'object') return false;
       const item = raw as AnyRecord;
 
@@ -1055,6 +1093,9 @@ export class KeychainSdk {
       }
       if (orgFilter === 'notnull') {
         return typeof item.organizationId === 'string' && item.organizationId;
+      }
+      if (typeof orgId === 'string') {
+        return item.organizationId === orgId;
       }
       return true;
     });
@@ -1069,10 +1110,23 @@ export class KeychainSdk {
       if (folderFilter === 'notnull') {
         return typeof item.folderId === 'string' && item.folderId;
       }
+      if (typeof folderId === 'string') {
+        return item.folderId === folderId;
+      }
       return true;
     });
 
-    const filtered = folderFiltered.filter((raw) => {
+    const collectionFiltered = folderFiltered.filter((raw) => {
+      if (!input.collectionId) return true;
+      if (!raw || typeof raw !== 'object') return false;
+      const item = raw as AnyRecord;
+      return (
+        Array.isArray(item.collectionIds) &&
+        item.collectionIds.includes(input.collectionId)
+      );
+    });
+
+    const filtered = collectionFiltered.filter((raw) => {
       if (!raw || typeof raw !== 'object') return false;
       const item = raw as AnyRecord;
       if (!input.type) return true;
