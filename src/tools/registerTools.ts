@@ -214,6 +214,11 @@ export function registerTools(server: McpServer, deps: RegisterToolsDeps) {
         .filter((attachment): attachment is string => attachment !== null);
       if (attachments.length > 0) {
         parts.push(`attachments=${quoteText(attachments.join(', '))}`);
+        parts.push(
+          `attachmentDownload=${quoteText(
+            `${publicPrefix}get_attachment with this item id plus an attachment id or exact filename; if an expected file is missing, run ${publicPrefix}sync and ${publicPrefix}get_item again first`,
+          )}`,
+        );
       }
     }
     if (typeof rec.favorite === 'boolean')
@@ -1225,8 +1230,7 @@ export function registerTools(server: McpServer, deps: RegisterToolsDeps) {
     `${deps.toolPrefix}.get_item`,
     {
       title: 'Get Item',
-      description:
-        'Get the full vault item by stable item id. Secret fields and signed attachment URLs are redacted by default; pass reveal=true only when the caller is allowed to receive secrets.',
+      description: `Get the full vault item by stable item id. Secret fields and signed attachment URLs are redacted by default; pass reveal=true only when the caller is allowed to receive secrets. When attachments are present, use ${publicPrefix}get_attachment with this item id plus the listed attachment id or filename to download file bytes. If an expected recently-added attachment is missing, run ${publicPrefix}sync and call ${publicPrefix}get_item again before retrying.`,
       annotations: { readOnlyHint: true },
       inputSchema: {
         id: stableObjectIdSchema,
@@ -1624,8 +1628,7 @@ export function registerTools(server: McpServer, deps: RegisterToolsDeps) {
     `${deps.toolPrefix}.get_attachment`,
     {
       title: 'Get Attachment',
-      description:
-        'Download an attachment from a parent item and return raw bytes as contentBase64. Pass itemId plus an attachment id, or an unambiguous filename selector resolved from the item metadata before calling bw get attachment. The response includes filename, byte count, and base64 content for local decoding.',
+      description: `Download an attachment from a parent item and return raw bytes as contentBase64. Pass itemId plus an attachment id, or an unambiguous filename selector resolved from the item metadata before calling bw get attachment. The response includes filename, byte count, and base64 content for local decoding. If the expected attachment filename is missing from ${publicPrefix}get_item metadata, run ${publicPrefix}sync and ${publicPrefix}get_item again before retrying.`,
       annotations: { readOnlyHint: true },
       inputSchema: {
         itemId: itemIdSchema,
@@ -1635,7 +1638,14 @@ export function registerTools(server: McpServer, deps: RegisterToolsDeps) {
     },
     async (input, extra) => {
       const sdk = await deps.getSdk(extra.authInfo);
-      const attachment = await sdk.getAttachment(input);
+      const attachment = await sdk.getAttachment({
+        ...input,
+        toolNames: {
+          sync: `${publicPrefix}sync`,
+          getItem: `${publicPrefix}get_item`,
+          getAttachment: `${publicPrefix}get_attachment`,
+        },
+      });
       const structuredContent = { attachment };
       return {
         structuredContent,

@@ -1893,8 +1893,14 @@ describe('KeychainSdk CRUD', () => {
 
 describe('KeychainSdk file I/O', () => {
   test('getAttachment writes file and returns base64', async () => {
+    const item = {
+      id: 'item-1',
+      type: 1,
+      attachments: [{ id: 'att-1', fileName: 'client-cert.pem' }],
+    };
     const { mock } = createMockBw({
       runResponses: new Map([
+        ['get item', { stdout: JSON.stringify(item), stderr: '' }],
         ['get attachment', { stdout: 'file-content', stderr: '' }],
       ]),
       sideEffect: async (args) => {
@@ -1909,7 +1915,7 @@ describe('KeychainSdk file I/O', () => {
       itemId: 'item-1',
       attachmentId: 'att-1',
     });
-    assert.equal(result.filename, 'att-1');
+    assert.equal(result.filename, 'client-cert.pem');
     assert.equal(result.bytes, 12); // 'file-content'.length
     assert.equal(
       Buffer.from(result.contentBase64, 'base64').toString(),
@@ -1947,6 +1953,45 @@ describe('KeychainSdk file I/O', () => {
     assert.ok(attachmentCall);
     assert.ok(attachmentCall.args.includes('att-id-1'));
     assert.ok(attachmentCall.args.includes('--raw'));
+  });
+
+  test('getAttachment reports available metadata when filename is missing', async () => {
+    const item = {
+      id: 'item-1',
+      type: 1,
+      attachments: [
+        { id: 'cert-id', fileName: 'client-cert.pem', sizeName: '2.03 KB' },
+        { id: 'key-id', fileName: 'client-key.pem', sizeName: '1.84 KB' },
+      ],
+    };
+    const { mock, calls } = createMockBw({
+      runResponses: new Map([
+        ['get item', { stdout: JSON.stringify(item), stderr: '' }],
+      ]),
+    });
+
+    const sdk = new KeychainSdk(mock);
+    await assert.rejects(
+      () =>
+        sdk.getAttachment({
+          itemId: 'item-1',
+          attachmentId: 'key-cert-giu2026.zip',
+        }),
+      (error: unknown) => {
+        assert.ok(error instanceof Error);
+        assert.match(error.message, /key-cert-giu2026\.zip/);
+        assert.match(error.message, /client-cert\.pem/);
+        assert.match(error.message, /client-key\.pem/);
+        assert.match(error.message, /keychain_sync/);
+        assert.match(error.message, /keychain_get_item/);
+        assert.match(error.message, /keychain_get_attachment/);
+        return true;
+      },
+    );
+    assert.equal(
+      calls.some((c) => c.args.includes('attachment')),
+      false,
+    );
   });
 
   test('createLogin with attachments writes temp files', async () => {

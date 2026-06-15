@@ -430,6 +430,9 @@ describe('registerTools: tool listing', { concurrency: 1 }, () => {
         /raw bytes as contentBase64/,
       );
       assert.match(descriptionOf('get_attachment'), /filename selector/);
+      assert.match(descriptionOf('get_item'), /use keychain_get_attachment/);
+      assert.match(descriptionOf('get_item'), /keychain_sync/);
+      assert.match(descriptionOf('get_attachment'), /keychain_sync/);
       assert.match(
         propertyDescription('get_attachment', 'attachmentId'),
         /filename selector/,
@@ -1184,6 +1187,9 @@ describe('registerTools: e2e with fake bw', { concurrency: 1 }, () => {
     assert.match(textOf(r), /attachments=/);
     assert.match(textOf(r), /id=att-1/);
     assert.match(textOf(r), /fileName=\\"downloaded\.bin\\"/);
+    assert.match(textOf(r), /attachmentDownload=/);
+    assert.match(textOf(r), /keychain_get_attachment/);
+    assert.match(textOf(r), /keychain_sync/);
     assert.doesNotMatch(textOf(r), /signed\.example/);
   });
 
@@ -1707,12 +1713,36 @@ describe('registerTools: e2e with fake bw', { concurrency: 1 }, () => {
   });
 
   test('get_attachment', async () => {
-    const r = await callToolE2e('get_attachment', {
-      itemId: '1',
-      attachmentId: 'att-1',
-    });
+    const r = await callToolE2e(
+      'get_attachment',
+      {
+        itemId: '1',
+        attachmentId: 'att-1',
+      },
+      { FAKE_BW_ITEM_ATTACHMENTS: 'true' },
+    );
     assert.equal(r.isError, undefined);
-    assert.equal(textOf(r), 'Downloaded attachment: filename="att-1" bytes=9');
+    assert.equal(
+      textOf(r),
+      'Downloaded attachment: filename="downloaded.bin" bytes=9',
+    );
+  });
+
+  test('get_attachment missing filename points to sync and refreshed metadata', async () => {
+    const r = await callToolE2e(
+      'get_attachment',
+      {
+        itemId: '1',
+        attachmentId: 'key-cert-giu2026.zip',
+      },
+      { FAKE_BW_ITEM_ATTACHMENTS: 'true' },
+    );
+    assert.equal(r.isError, true);
+    assert.match(textOf(r), /key-cert-giu2026\.zip/);
+    assert.match(textOf(r), /downloaded\.bin/);
+    assert.match(textOf(r), /keychain_sync/);
+    assert.match(textOf(r), /keychain_get_item/);
+    assert.match(textOf(r), /keychain_get_attachment/);
   });
 
   test('send_create_encoded with text', async () => {

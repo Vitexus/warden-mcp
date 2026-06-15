@@ -23,6 +23,11 @@ type AttachmentMetadata = {
   size?: string | number;
   sizeName?: string;
 };
+type AttachmentToolNames = {
+  readonly sync: string;
+  readonly getItem: string;
+  readonly getAttachment: string;
+};
 
 const ITEM_TYPE = {
   login: 1,
@@ -617,6 +622,32 @@ export class KeychainSdk {
     );
   }
 
+  private attachmentSelectorNotFoundMessage(
+    item: unknown,
+    selector: string,
+    toolNames?: AttachmentToolNames,
+  ): string {
+    const attachments = this.attachmentsFromItem(item);
+    const syncTool = toolNames?.sync ?? 'keychain_sync';
+    const getItemTool = toolNames?.getItem ?? 'keychain_get_item';
+    const getAttachmentTool =
+      toolNames?.getAttachment ?? 'keychain_get_attachment';
+    const available =
+      attachments.length > 0
+        ? attachments
+            .map((a) => {
+              const parts: string[] = [];
+              if (a.id) parts.push(`id=${a.id}`);
+              if (a.fileName) parts.push(`fileName=${a.fileName}`);
+              if (a.sizeName) parts.push(`sizeName=${a.sizeName}`);
+              return `{${parts.join(' ')}}`;
+            })
+            .join(', ')
+        : 'none';
+
+    return `Attachment selector "${selector}" was not found in the current item metadata. Available attachments: ${available}. If the attachment was recently added or renamed, run ${syncTool}, re-read the item with ${getItemTool}, then retry ${getAttachmentTool} with an attachment id or exact filename from refreshed metadata.`;
+  }
+
   private redactPasswordHistoryForTool(history: unknown[]): unknown[] {
     // For secret-returning tools we avoid returning sentinel strings like "[REDACTED]"
     // because downstream utilities might accidentally pass them through.
@@ -693,6 +724,7 @@ export class KeychainSdk {
   async getAttachment(input: {
     itemId: string;
     attachmentId: string;
+    toolNames?: AttachmentToolNames;
   }): Promise<{ filename: string; bytes: number; contentBase64: string }> {
     return this.bw.withSession(async (session) => {
       const { stdout: itemOut } = await this.bw.runForSession(
@@ -702,7 +734,16 @@ export class KeychainSdk {
       );
       const item = this.parseBwJson(itemOut);
       const metadata = this.resolveAttachment(item, input.attachmentId);
-      const attachmentSelector = metadata?.id ?? input.attachmentId;
+      if (!metadata) {
+        throw new Error(
+          this.attachmentSelectorNotFoundMessage(
+            item,
+            input.attachmentId,
+            input.toolNames,
+          ),
+        );
+      }
+      const attachmentSelector = metadata.id ?? input.attachmentId;
 
       const { stdout, stdoutBuffer } = await this.bw.runForSession(
         session,
