@@ -11,6 +11,9 @@
   "rebaseWhen": "conflicted",
   "rangeStrategy": "bump",
   "timezone": "Europe/Rome",
+  "lockFileMaintenance": {
+    "enabled": true
+  },
   "customManagers": [
     {
       "customType": "regex",
