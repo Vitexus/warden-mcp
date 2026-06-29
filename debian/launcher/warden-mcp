@@ -1,0 +1,5 @@
+nodejs /usr/lib/warden-mcp/warden-mcp.js "$@"
+
+
+
+

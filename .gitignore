@@ -18,3 +18,12 @@ scripts/*
 scorecard.png
 .sisyphus/
 .omo/
+
+
+debian/.debhelper/
+debian/debhelper-build-stamp
+debian/files
+debian/warden-mcp.debhelper.log
+debian/warden-mcp.substvars
+debian/warden-mcp/
+

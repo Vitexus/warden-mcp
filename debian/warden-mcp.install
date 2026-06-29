@@ -3,3 +3,4 @@ dist usr/lib/warden-mcp
 node_modules usr/lib/warden-mcp
 package.json usr/lib/warden-mcp
 debian/warden-mcp.svg usr/share/icons/hicolor/scalable/apps
+debian/launcher/warden-mcp usr/bin
