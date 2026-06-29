@@ -1,0 +1,4 @@
+version=4
+opts=filenamemangle=s/.+\/v?(\d\S+)\.tar\.gz/warden-mcp-$1\.tar\.gz/ \
+  https://github.com/icoretech/warden-mcp/tags \
+  .*/v?(\d\S+)\.tar\.gz

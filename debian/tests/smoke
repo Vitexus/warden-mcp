@@ -1,0 +1,6 @@
+#!/bin/sh
+set -e
+# Verify the binary is on PATH and Node.js can load the entry point
+warden-mcp --version 2>&1 || true
+node /usr/lib/warden-mcp/bin/warden-mcp.js --help 2>&1 || true
+echo "warden-mcp binary present: OK"

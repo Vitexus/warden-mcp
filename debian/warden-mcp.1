@@ -1,0 +1,82 @@
+.TH WARDEN\-MCP 1 "2026-06-29" "0.2.28" "User Commands"
+.SH NAME
+warden\-mcp \- Vaultwarden/Bitwarden MCP server for AI agents
+.SH SYNOPSIS
+.B warden-mcp
+[\fB\-\-stdio\fR | \fB\-\-http\fR]
+.SH DESCRIPTION
+.B warden-mcp
+is a Model Context Protocol (MCP) server that lets AI agents interact with
+Vaultwarden or Bitwarden password vaults via the official Bitwarden CLI
+(\fBbw\fR). MCP clients can search, create, update, move, and read vault
+items without reimplementing Bitwarden client-side cryptography.
+.PP
+By default the server starts in HTTP/SSE mode and listens on port 3005.
+Pass \fB\-\-stdio\fR to use stdin/stdout transport for direct embedding in
+desktop MCP hosts.
+.PP
+The Bitwarden CLI (\fBbw\fR) must be available on PATH, or its location
+set via the \fBBW_BIN\fR environment variable.
+.SH OPTIONS
+.TP
+.B \-\-stdio
+Use stdio transport. The MCP host communicates over stdin/stdout.
+.TP
+.B \-\-http
+Use HTTP/SSE transport (default). Listens on the port defined by \fBPORT\fR.
+.SH ENVIRONMENT
+.TP
+.B BW_HOST
+URL of the Vaultwarden or Bitwarden server.
+.TP
+.B BW_CLIENTID
+Bitwarden API client ID for API-key authentication.
+.TP
+.B BW_CLIENTSECRET
+Bitwarden API client secret for API-key authentication.
+.TP
+.B BW_USER
+Bitwarden account email for username/password authentication.
+.TP
+.B BW_PASSWORD
+Bitwarden master password.
+.TP
+.B BW_BIN
+Path to the \fBbw\fR CLI binary. Overrides automatic detection.
+.TP
+.B PORT
+TCP port to listen on in HTTP mode (default: \fB3005\fR).
+.TP
+.B WARDEN_MCP_HOST
+IP address or hostname to bind to in HTTP mode.
+.TP
+.B WARDEN_MCP_STDIO
+Set to \fBtrue\fR to enable stdio mode without passing \fB\-\-stdio\fR.
+.SH EXAMPLES
+.PP
+Start in HTTP mode with API-key authentication:
+.RS
+.nf
+BW_HOST=https://vault.example.com \\
+BW_CLIENTID=user.xxxxx \\
+BW_CLIENTSECRET=xxxxx \\
+BW_PASSWORD='master-password' \\
+warden-mcp
+.fi
+.RE
+.PP
+Start in stdio mode for Claude Code:
+.RS
+.nf
+BW_HOST=https://vault.example.com \\
+BW_USER=user@example.com \\
+BW_PASSWORD='master-password' \\
+warden-mcp --stdio
+.fi
+.RE
+.SH SEE ALSO
+.BR bw (1)
+.SH AUTHOR
+Vítězslav Dvořák <info@vitexsoftware.cz>
+.PP
+Upstream: icoretech <https://github.com/icoretech/warden-mcp>

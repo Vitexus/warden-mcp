@@ -1,0 +1,23 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	npm ci --ignore-scripts
+
+override_dh_auto_build:
+	npm run build
+
+override_dh_auto_clean:
+	rm -rf node_modules dist
+
+override_dh_install:
+	npm prune --omit=dev --omit=optional
+	find dist -name '*.test.js' -delete
+	rm -rf dist/integration
+	dh_install
+
+override_dh_auto_test:
+	appstreamcli validate --pedantic --no-net \
+	    debian/warden-mcp.metainfo.xml

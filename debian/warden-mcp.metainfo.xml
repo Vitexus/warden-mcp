@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="console-application">
+  <id>io.github.icoretech.warden-mcp</id>
+  <metadata_license>MIT</metadata_license>
+  <project_license>MIT</project_license>
+  <name>warden-mcp</name>
+  <summary>Vaultwarden/Bitwarden MCP server for AI agents</summary>
+  <description>
+    <p>
+      warden-mcp is a Model Context Protocol (MCP) server that lets AI agents
+      interact with Vaultwarden or Bitwarden password vaults via the official
+      Bitwarden CLI. MCP clients can search, create, update, move, and read
+      vault items without reimplementing Bitwarden client-side cryptography.
+    </p>
+    <p>Supported vault item types include:</p>
+    <ul>
+      <li>Login credentials and TOTP codes</li>
+      <li>Secure notes and attachments</li>
+      <li>Bitwarden Sends</li>
+      <li>Folders, organisations, and collections</li>
+    </ul>
+    <p>
+      The server operates in HTTP/SSE mode (default, port 3005) for networked
+      agents, or in stdio mode for direct integration with desktop MCP hosts
+      such as Claude Code or Cursor.
+    </p>
+  </description>
+  <icon type="stock">warden-mcp</icon>
+  <url type="homepage">https://github.com/icoretech/warden-mcp</url>
+  <url type="bugtracker">https://github.com/icoretech/warden-mcp/issues</url>
+  <developer id="io.github.icoretech">
+    <name>icoretech</name>
+  </developer>
+  <provides>
+    <binary>warden-mcp</binary>
+  </provides>
+  <categories>
+    <category>Network</category>
+    <category>Security</category>
+  </categories>
+  <keywords>
+    <keyword>mcp</keyword>
+    <keyword>bitwarden</keyword>
+    <keyword>vaultwarden</keyword>
+    <keyword>password-manager</keyword>
+    <keyword>ai-agent</keyword>
+    <keyword>secrets</keyword>
+  </keywords>
+  <content_rating type="oars-1.1"/>
+  <releases>
+    <release version="0.2.28" date="2026-06-29"/>
+  </releases>
+</component>

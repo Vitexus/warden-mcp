@@ -1,0 +1,35 @@
+Source: warden-mcp
+Section: net
+Priority: optional
+Maintainer: Vítězslav Dvořák <info@vitexsoftware.cz>
+Build-Depends:
+ debhelper-compat (= 13),
+ nodejs (>= 20),
+ npm,
+ appstream,
+Standards-Version: 4.7.0
+Homepage: https://github.com/icoretech/warden-mcp
+Rules-Requires-Root: no
+Vcs-Git: https://github.com/Vitexus/warden-mcp.git
+Vcs-Browser: https://github.com/Vitexus/warden-mcp
+
+Package: warden-mcp
+Architecture: all
+Depends:
+ ${misc:Depends},
+ nodejs (>= 20),
+Suggests:
+ bitwarden-cli,
+Description: Vaultwarden/Bitwarden MCP server for AI agents
+ warden-mcp is a Model Context Protocol (MCP) server that lets AI agents
+ interact with Vaultwarden or Bitwarden password vaults via the official
+ Bitwarden CLI (bw). MCP clients can search, create, update, move, and
+ read vault items without reimplementing Bitwarden client-side cryptography.
+ .
+ Supported vault item types include credentials, TOTP codes, secure notes,
+ attachments, Sends, folders, organisations, and collections.
+ .
+ The server operates in HTTP/SSE mode (default, port 3005) for networked
+ agents, or in stdio mode for direct integration with desktop MCP hosts
+ such as Claude Code or Cursor. The Bitwarden CLI (bw) must be available
+ on PATH or its path set via the BW_BIN environment variable.
