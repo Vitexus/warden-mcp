@@ -1,4 +1,4 @@
-nodejs /usr/lib/warden-mcp/warden-mcp.js "$@"
+nodejs /usr/lib/warden-mcp/bin/warden-mcp.js "$@"
 
 
 
