@@ -4,7 +4,6 @@
 
 [![npm version](https://img.shields.io/npm/v/%40icoretech%2Fwarden-mcp?logo=npm)](https://www.npmjs.com/package/@icoretech/warden-mcp)
 [![CI](https://img.shields.io/github/actions/workflow/status/icoretech/warden-mcp/ci.yml?branch=main&label=ci)](https://github.com/icoretech/warden-mcp/actions/workflows/ci.yml)
-[![session guardrail](https://img.shields.io/github/actions/workflow/status/icoretech/warden-mcp/session-flood-guardrail.yml?branch=main&label=session%20guardrail)](https://github.com/icoretech/warden-mcp/actions/workflows/session-flood-guardrail.yml)
 [![license](https://img.shields.io/github/license/icoretech/warden-mcp)](LICENSE)
 [![node](https://img.shields.io/badge/node-%3E%3D24-339933?logo=node.js)](package.json)
 [![docker](https://img.shields.io/badge/ghcr.io-icoretech%2Fwarden--mcp-blue?logo=docker)](https://ghcr.io/icoretech/warden-mcp)
