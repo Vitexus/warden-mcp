@@ -3,13 +3,13 @@
 // Current version of this Pipeline https://github.com/VitexSoftware/BuildImages/blob/main/Test/Jenkinsfile
 
 String[] distributions = [
-			'debian:bookworm',
+//			'debian:bookworm', // Depends: nodejs (>= 20) but 18.20.4+dfsg-1~deb12u2 is to be installed
 			'debian:trixie',
 			// 'debian:forky', // Disabled: Forky is still unstable/research-only.
 			//                 // The full Debian package ecosystem is not yet available for Forky.
 			//                 // Re-enable once the stack builds cleanly for Forky.
-			'ubuntu:jammy',
-			'ubuntu:noble',
+//			'ubuntu:jammy',    // Depends: nodejs (>= 20) but 12.22.9~dfsg-1ubuntu3.6 is to be installed
+//			'ubuntu:noble',    // Depends: nodejs (>= 20) but 18.19.1+dfsg-6ubuntu5 is to be installed
 			'ubuntu:resolute',
 ]
 
