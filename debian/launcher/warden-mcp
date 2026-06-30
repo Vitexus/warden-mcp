@@ -1,4 +1,5 @@
-nodejs /usr/lib/warden-mcp/bin/warden-mcp.js "$@"
+#!/bin/sh
+exec nodejs /usr/lib/warden-mcp/bin/warden-mcp.js "$@"
 
 
 

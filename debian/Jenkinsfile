@@ -107,7 +107,7 @@ distributions.each { distro ->
                         sh 'echo "INSTALATION"'
 
                         def installOrder = [
-                            'multiflexi-sqlite',
+                            'warden-mcp',
                         ]
 
                         def sorted_artifacts = artifacts.toList()
